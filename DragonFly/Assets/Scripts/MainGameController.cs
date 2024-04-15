@@ -23,7 +23,6 @@ public class MainGameController : MonoBehaviour
     [SerializeField, Header("回復アイテム　生成確率")] float healProb;
     [SerializeField, Header("ワープホール　生成確率")] float warpProb;
     [SerializeField, Header("ワープ時の移動量")] float warpDis;
-    List<GameObject> itemList = new List<GameObject>();
 
     [SerializeField, Header("障害物/アイテム初期速度")] float objSpeed;
     [SerializeField, Header("障害物/アイテム移動速度 上昇量")] float addSpeed;
