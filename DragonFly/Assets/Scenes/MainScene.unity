@@ -351,7 +351,7 @@ MonoBehaviour:
   healItem: {fileID: 2770842849879280136, guid: f58df093d692dd7448b44f1382267e6c, type: 3}
   warpHole: {fileID: 5112083318021074812, guid: 4095244e884d6864785f00c803191bd4, type: 3}
   healProb: 40
-  warpProb: 10
+  warpProb: 40
   warpDis: 500
   objSpeed: 5
   addSpeed: 0.5
