@@ -17,6 +17,10 @@ public class PlayerController : MonoBehaviour
     //ダメージ、無敵
     bool isDamage = false, isInvincible = false;
 
+    [Header("ゲームオーバー演出")]
+    [SerializeField, Header("揺れの速度")] float cycleSpeed = 10;
+    [SerializeField, Header("揺れ幅")] float amplitude = 0.001f;
+
     void Start()
     {
 
@@ -35,6 +39,7 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case MainGameController.STATE.GAMEOVER:
+                Gameover();
                 break;
         }
     }
@@ -92,6 +97,12 @@ public class PlayerController : MonoBehaviour
         isInvincible = false;
     }
 
+    void Gameover()
+    {
+        float x = Mathf.Sin(Time.time * cycleSpeed) * amplitude;
+        this.transform.position -= new Vector3(x, speed * Time.deltaTime, 0);
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         //障害物にぶつかったとき　かつ　無敵状態じゃないとき
@@ -99,6 +110,23 @@ public class PlayerController : MonoBehaviour
         {
             isDamage = true;
             isInvincible = true;
+        }
+
+        //回復アイテムに触れたとき
+        if(collision.gameObject.CompareTag("Heal"))
+        {
+            mainGameController.HP++;
+
+            if (collision.gameObject.GetComponent<SpriteRenderer>() is SpriteRenderer sr)
+            {
+                sr.enabled = false; //アイテムを非表示にする
+            }
+        }
+
+        //ワープホールに触れたとき
+        if(collision.gameObject.CompareTag("WarpHole"))
+        {
+            mainGameController.Warp();
         }
     }
 }
