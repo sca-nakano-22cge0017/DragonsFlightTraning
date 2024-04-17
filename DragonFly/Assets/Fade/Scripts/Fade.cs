@@ -99,7 +99,7 @@ public class Fade : MonoBehaviour
 
 	public Coroutine FadeIn (float time, System.Action action)
 	{
-		cutoutRange = 0;
+		cutoutRange = 0.1f;
 		StopAllCoroutines ();
 		return StartCoroutine (FadeinCoroutine (time, action));
 	}

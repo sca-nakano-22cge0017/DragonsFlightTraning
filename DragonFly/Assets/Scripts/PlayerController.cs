@@ -45,8 +45,11 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case MainGameController.STATE.PLAY:
-                Move();
-                Damage();
+                if(!mainGameController.IsWarp) //ワープ中は動かせない
+                {
+                    Move();
+                    Damage();
+                }
                 break;
 
             case MainGameController.STATE.GAMEOVER:
@@ -124,7 +127,7 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         //障害物にぶつかったとき　かつ　無敵状態じゃないとき
-        if(collision.gameObject.CompareTag("Obstacle") && !isInvincible)
+        if(collision.gameObject.CompareTag("Obstacle") && !isInvincible && !mainGameController.IsFever)
         {
             isDamage = true;
             isInvincible = true;

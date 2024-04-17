@@ -450,7 +450,7 @@ MonoBehaviour:
   - {fileID: 1464206581}
   - {fileID: 1837293935}
   maxBall: 7
-  feverTime: 10
+  feverTime: 5
   feverRatio: 2
   windEffect: {fileID: 1292396309}
   distance: {fileID: 679577019}
@@ -565,7 +565,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 50
   m_TargetDisplay: 0
 --- !u!224 &331477662
 RectTransform:
@@ -1159,7 +1159,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!224 &604139039
 RectTransform:

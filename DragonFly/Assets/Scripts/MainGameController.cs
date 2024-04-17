@@ -55,10 +55,14 @@ public class MainGameController : MonoBehaviour
     int lateBall;
     [SerializeField, Header("最大個数")] int maxBall = 7;
     public int Ball { get { return ball; } set { ball = value; } }
+
     [SerializeField, Header("継続時間")] float feverTime;
-    bool isFever = false;
     [SerializeField, Header("フィーバー時の速度上昇倍率")] float feverRatio;
+    float _ratio = 1;
     [SerializeField, Header("風エフェクト")] ParticleSystem windEffect;
+
+    bool isFever = false;
+    public bool IsFever { get { return isFever; } set { isFever = value; } }
 
     //飛行距離
     [SerializeField] Text distance;
@@ -83,6 +87,11 @@ public class MainGameController : MonoBehaviour
 
         //最初の障害物を生成
         ObstacleCreate();
+
+        //生成確率初期化
+        _healProb = healProb;
+        _warpProb = warpProb;
+        _feverProb = feverProb;
 
         //フェードイン
         sceneChange.FadeIn();
@@ -134,13 +143,24 @@ public class MainGameController : MonoBehaviour
     /// </summary>
     void CreateProbability()
     {
-        //HPが最大のときは回復アイテムが生成されないようにする
-        if (hp >= defaultHp) { _healProb = 0; }
-        else _healProb = healProb;
+        //HPが最大のときは回復アイテムが生成されないようにする 他アイテムの生成確率を上げる
+        if (hp >= defaultHp)
+        {
+            _healProb = 0;
+            _warpProb += _healProb / 4;
+            _feverProb += _healProb / 2;
+        }
+        else if(!isFever)
+        {
+            //初期値に戻す
+            _healProb = healProb;
+            _warpProb = warpProb;
+            _feverProb = feverProb;
+        }
 
-        //フィーバー中はフィーバーアイテムが生成されないようにする
-        if(isFever) { _feverProb = 0; }
-        else _feverProb = feverProb;
+        //フィーバー中はフィーバーアイテム・ワープアイテムが生成されないようにする
+        if (isFever) { _feverProb = 0; _warpProb = 0; }
+        else { _warpProb = warpProb; _feverProb = feverProb; }
     }
 
     /// <summary>
@@ -258,11 +278,13 @@ public class MainGameController : MonoBehaviour
         //フィーバータイム
         if(isFever)
         {
+            _ratio = feverRatio;
             Time.timeScale = feverRatio; //速度上昇
             windEffect.Play(); //エフェクト再生
         }
         else
         {
+            _ratio = 1;
             Time.timeScale = 1;
             windEffect.Stop();
         }
@@ -293,7 +315,7 @@ public class MainGameController : MonoBehaviour
     /// </summary>
     void FlyDis()
     {
-        dis += Time.deltaTime * 10 + _addSpeed / 100;
+        dis += Time.deltaTime * 10 * _ratio + _addSpeed / 100;
         distance.text = dis.ToString("f0") + "m";
     }
 
@@ -302,7 +324,6 @@ public class MainGameController : MonoBehaviour
     /// </summary>
     public void Warp()
     {
-        dis += warpDis;
         warpFade.IsWarpFade = true; //ワープ演出
         isWarp = true;
 
@@ -332,6 +353,8 @@ public class MainGameController : MonoBehaviour
             SpeedChange(obj, objSpeed, false);
             SpeedChange(obj, _addSpeed, true);
         } //移動速度変更
+
+        dis += warpDis;
 
         yield return new WaitForSeconds(1f);
 

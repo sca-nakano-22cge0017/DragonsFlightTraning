@@ -7,16 +7,6 @@ public class Explain : MonoBehaviour
 {
     [SerializeField] GameObject window;
 
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
-
     public void Display()
     {
         window.SetActive(true);
