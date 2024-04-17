@@ -51,11 +51,12 @@ public class FadeImage : UnityEngine.UI.Graphic , IFade
 	private void UpdateMaskCutout (float range)
 	{
 		enabled = true;
-		material.SetFloat ("_Range", 1 - range);
+		material.SetFloat ("_Range", range);
 
-		if (range <= 0) {
+		if(range <= 0)
+        {
 			this.enabled = false;
-		}
+        }
 	}
 
 	public void UpdateMaskTexture (Texture texture)

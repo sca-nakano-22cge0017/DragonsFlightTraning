@@ -28,7 +28,7 @@ public class Fade : MonoBehaviour
 {
 	IFade fade;
 
-	void Start ()
+    void Start ()
 	{
 		Init ();
 		fade.Range = cutoutRange;
@@ -87,6 +87,7 @@ public class Fade : MonoBehaviour
 
 	public Coroutine FadeOut (float time, System.Action action)
 	{
+		cutoutRange = 1;
 		StopAllCoroutines ();
 		return StartCoroutine (FadeoutCoroutine (time, action));
 	}
@@ -98,6 +99,7 @@ public class Fade : MonoBehaviour
 
 	public Coroutine FadeIn (float time, System.Action action)
 	{
+		cutoutRange = 0;
 		StopAllCoroutines ();
 		return StartCoroutine (FadeinCoroutine (time, action));
 	}

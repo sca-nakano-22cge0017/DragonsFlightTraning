@@ -21,9 +21,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField, Header("揺れの速度")] float cycleSpeed = 10;
     [SerializeField, Header("揺れ幅")] float amplitude = 0.001f;
 
+    SpriteRenderer sr;
+    Collider2D col;
+
     void Start()
     {
+        if(GetComponent<SpriteRenderer>() is var s)
+        {
+            sr = s;
+        }
 
+        if(GetComponent<Collider2D>() is var c)
+        {
+            col = c;
+        }
     }
 
     void Update()
@@ -41,6 +52,13 @@ public class PlayerController : MonoBehaviour
             case MainGameController.STATE.GAMEOVER:
                 Gameover();
                 break;
+        }
+
+        //ワープ中じゃないとき
+        if(!mainGameController.IsWarp)
+        {
+            col.enabled = true; //当たり判定
+            sr.maskInteraction = SpriteMaskInteraction.None; //マスク解除
         }
     }
 
@@ -116,17 +134,25 @@ public class PlayerController : MonoBehaviour
         if(collision.gameObject.CompareTag("Heal"))
         {
             mainGameController.HP++;
+        }
 
-            if (collision.gameObject.GetComponent<SpriteRenderer>() is SpriteRenderer sr)
-            {
-                sr.enabled = false; //アイテムを非表示にする
-            }
+        if(collision.gameObject.CompareTag("Ball"))
+        {
+            mainGameController.Ball++;
         }
 
         //ワープホールに触れたとき
         if(collision.gameObject.CompareTag("WarpHole"))
         {
+            sr.maskInteraction = SpriteMaskInteraction.VisibleOutsideMask; //マスクする
+            col.enabled = false; //当たり判定を消す
             mainGameController.Warp();
+        }
+
+        //アイテムに触れた時、アイテムを消す
+        if (collision.gameObject.CompareTag("Heal") || collision.gameObject.CompareTag("Ball"))
+        {
+            Destroy(collision.gameObject);
         }
     }
 }

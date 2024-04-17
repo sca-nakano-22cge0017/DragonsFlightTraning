@@ -13,10 +13,24 @@ public class ObjectsMove : MonoBehaviour
     float speed = 0;
     float destroyPosX = -10;
 
+    float ratio = 1;
+
+    /// <summary>
+    /// 移動速度
+    /// </summary>
     public float Speed
     {
         get { return defaultSpeed; }
         set { defaultSpeed = value;}
+    }
+
+    /// <summary>
+    /// 速度上昇倍率
+    /// </summary>
+    public float Ratio
+    {
+        get { return ratio; }
+        set { ratio = value; }
     }
 
     void Start()
@@ -33,7 +47,7 @@ public class ObjectsMove : MonoBehaviour
     {
         if (mainGameController.state == MainGameController.STATE.PLAY)
         {
-            transform.Translate(Vector3.left * speed * Time.deltaTime);
+            transform.Translate(Vector3.left * speed * Time.deltaTime * ratio);
         }
 
         //特定位置まで来たらオブジェクト削除

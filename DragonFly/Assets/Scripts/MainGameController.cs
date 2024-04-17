@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class MainGameController : MonoBehaviour
 {
+    [SerializeField] GameObject player;
+
     public enum STATE { WAIT = 0, PLAY, GAMEOVER, }
     public STATE state = 0;
 
@@ -20,13 +22,25 @@ public class MainGameController : MonoBehaviour
     [SerializeField, Header("アイテム生成位置　Y")] int[] itemPosY;
     [SerializeField, Header("回復アイテムのPrefab")] GameObject healItem;
     [SerializeField, Header("ワープホールのPrefab")] GameObject warpHole;
+    [SerializeField, Header("フィーバーアイテムのPrefab")] GameObject feverItem;
     [SerializeField, Header("回復アイテム　生成確率")] float healProb;
+    float _healProb = 0; //計算用
     [SerializeField, Header("ワープホール　生成確率")] float warpProb;
-    [SerializeField, Header("ワープ時の移動量")] float warpDis;
+    float _warpProb = 0; //計算用
+    [SerializeField, Header("フィーバーアイテム　生成確率")] float feverProb;
+    float _feverProb = 0; //計算用
 
-    [SerializeField, Header("障害物/アイテム初期速度")] float objSpeed;
-    [SerializeField, Header("障害物/アイテム移動速度 上昇量")] float addSpeed;
+    [SerializeField, Header("初期速度")] float objSpeed;
+    [SerializeField, Header("移動速度　上昇量")] float addSpeed;
+    [SerializeField, Header("移動速度　最大値")] float maxSpeed;
     float _addSpeed; //実際に計算に使う値
+
+    [Header("ワープ")]
+    [SerializeField, Header("ワープ時の移動量")] float warpDis;
+    [SerializeField, Header("ワープ時の円形フェード")] CircleFade warpFade;
+    bool isWarp =false;
+    public bool IsWarp { get { return isWarp; } set { isWarp = value; } }
+    [SerializeField, Header("ワープ出口")] GameObject warpExit;
 
     [Header("HP")]
     [SerializeField] Image[] heart;
@@ -35,23 +49,47 @@ public class MainGameController : MonoBehaviour
     int lateHp; //前フレームのHP
     public int HP { get { return hp;}  set { hp = value; } }
 
+    [Header("フィーバー")]
+    [SerializeField] Image[] balls;
+    int ball = 0; //獲得アイテムの数
+    int lateBall;
+    [SerializeField, Header("最大個数")] int maxBall = 7;
+    public int Ball { get { return ball; } set { ball = value; } }
+    [SerializeField, Header("継続時間")] float feverTime;
+    bool isFever = false;
+    [SerializeField, Header("フィーバー時の速度上昇倍率")] float feverRatio;
+    [SerializeField, Header("風エフェクト")] ParticleSystem windEffect;
+
     //飛行距離
     [SerializeField] Text distance;
     float dis;
 
     //ゲームオーバー
+    [SerializeField] SceneChange sceneChange;
     [SerializeField, Header("リザルトへ遷移するまでの時間")] float toResultWait;
     bool isGameover = false;
 
-    void Start()
+    void Awake()
     {
         //HP初期化
         hp = defaultHp;
         lateHp = hp;
-        HpDisplay(heart, hp, true);
+        UIDisplay(heart, hp, true);
+
+        //フィーバーアイテム個数初期化
+        ball = 0;
+        lateBall = 0;
+        UIDisplay(balls, balls.Length, false);
 
         //最初の障害物を生成
         ObstacleCreate();
+
+        //フェードイン
+        sceneChange.FadeIn();
+        StartCoroutine(FadeEndCheck());
+
+        //風エフェクト
+        windEffect.Stop();
     }
 
     void Update()
@@ -63,10 +101,12 @@ public class MainGameController : MonoBehaviour
 
             case STATE.PLAY:
                 HpControll();
+                FeverControll();
                 FlyDis();
+                CreateProbability();
 
                 //障害物の移動速度を上げる
-                _addSpeed += addSpeed * Time.deltaTime;
+                if(maxSpeed > _addSpeed) _addSpeed += addSpeed * Time.deltaTime;
                 break;
 
             case STATE.GAMEOVER:
@@ -90,6 +130,20 @@ public class MainGameController : MonoBehaviour
     }
 
     /// <summary>
+    /// アイテム生成確率の調整
+    /// </summary>
+    void CreateProbability()
+    {
+        //HPが最大のときは回復アイテムが生成されないようにする
+        if (hp >= defaultHp) { _healProb = 0; }
+        else _healProb = healProb;
+
+        //フィーバー中はフィーバーアイテムが生成されないようにする
+        if(isFever) { _feverProb = 0; }
+        else _feverProb = feverProb;
+    }
+
+    /// <summary>
     /// アイテムの生成
     /// </summary>
     public void ItemCreate()
@@ -103,14 +157,19 @@ public class MainGameController : MonoBehaviour
         GameObject obj = null;
 
         //回復アイテム生成
-        if (num <= healProb)
+        if (num <= _healProb)
         {
             obj = Instantiate(healItem, pos, Quaternion.identity);
         }
         //ワープホール生成
-        else if(num <= healProb + warpProb)
+        else if(num <= _healProb + _warpProb)
         {
             obj = Instantiate(warpHole, pos, Quaternion.identity);
+        }
+        //フィーバーアイテム生成
+        else if(num <= _healProb + _warpProb + _feverProb)
+        {
+            obj = Instantiate(feverItem, pos, Quaternion.identity);
         }
 
         if (obj)
@@ -149,10 +208,10 @@ public class MainGameController : MonoBehaviour
         if (lateHp != hp)
         {
             //ハートをすべて消す
-            HpDisplay(heart, heart.Length, false);
+            UIDisplay(heart, heart.Length, false);
 
             //現在のHPの数だけ再表示
-            HpDisplay(heart, hp, true);
+            UIDisplay(heart, hp, true);
 
             lateHp = hp;
         }
@@ -170,12 +229,58 @@ public class MainGameController : MonoBehaviour
     }
 
     /// <summary>
+    /// フィーバーの管理
+    /// </summary>
+    void FeverControll()
+    {
+        if (ball >= maxBall) ball = maxBall;
+
+        //前フレームから獲得数に変更があれば表示をし直す
+        if (lateBall != ball)
+        {
+            //アイテムをすべて消す
+            UIDisplay(balls, balls.Length, false);
+
+            //現在のアイテム獲得数だけ再表示
+            UIDisplay(balls, ball, true);
+
+            lateBall = ball;
+        }
+
+        //7個獲得したらフィーバー突入
+        if (ball >= maxBall)
+        {
+            ball = 0; //初期化
+            isFever = true;
+            StartCoroutine(FeverTimeCheck());
+        }
+
+        //フィーバータイム
+        if(isFever)
+        {
+            Time.timeScale = feverRatio; //速度上昇
+            windEffect.Play(); //エフェクト再生
+        }
+        else
+        {
+            Time.timeScale = 1;
+            windEffect.Stop();
+        }
+    }
+
+    IEnumerator FeverTimeCheck()
+    {
+        yield return new WaitForSecondsRealtime(feverTime);
+        isFever = false;
+    }
+
+    /// <summary>
     /// HPイラストの表示・非表示
     /// </summary>
     /// <param name="image">対象のイラスト</param>
     /// <param name="num">表示・非表示にする数</param>
     /// <param name="isDisp">trueのとき表示、falseのとき非表示</param>
-    void HpDisplay(Image[] image, int num, bool isDisp)
+    void UIDisplay(Image[] image, int num, bool isDisp)
     {
         for (int i = 0; i < num; i++)
         {
@@ -198,6 +303,39 @@ public class MainGameController : MonoBehaviour
     public void Warp()
     {
         dis += warpDis;
+        warpFade.IsWarpFade = true; //ワープ演出
+        isWarp = true;
+
+        StartCoroutine(WarpEnd());
+    }
+
+    /// <summary>
+    /// ワープ演出
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator WarpEnd()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        SpriteRenderer pSR = player.GetComponent<SpriteRenderer>();
+        pSR.enabled = false; //プレイヤー非表示
+
+        yield return new WaitUntil(() => !warpFade.IsWarpFade); //演出が終わったら
+
+        pSR.enabled = true; //プレイヤー表示
+
+        //ワープホールの出口を生成
+        Vector3 pPos = player.GetComponent<Transform>().transform.position;
+        var obj = Instantiate(warpExit, pPos + new Vector3(2, 0, 0), Quaternion.identity, obstacles.transform);
+        if (obj)
+        {
+            SpeedChange(obj, objSpeed, false);
+            SpeedChange(obj, _addSpeed, true);
+        } //移動速度変更
+
+        yield return new WaitForSeconds(1f);
+
+        isWarp = false; //ワープ終了
     }
 
     IEnumerator GameOver()
@@ -208,6 +346,16 @@ public class MainGameController : MonoBehaviour
         PlayerPrefs.SetFloat("Distance", dis);
 
         //シーン遷移
-        SceneManager.LoadScene("ResultScene");
+        sceneChange.ToResult();
+    }
+
+    /// <summary>
+    /// フェードインが完了したかチェックする
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator FadeEndCheck()
+    {
+        yield return new WaitUntil(() => sceneChange.IsFadeInEnd);
+        state = STATE.PLAY;
     }
 }

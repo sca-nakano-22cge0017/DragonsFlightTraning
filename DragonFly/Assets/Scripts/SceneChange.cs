@@ -4,16 +4,59 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// ボタンによるシーン遷移を制御
+/// シーン遷移を制御
 /// </summary>
 public class SceneChange : MonoBehaviour
 {
+    [SerializeField] Fade fadeIn;
+    bool isFadeIn;
+    [SerializeField] Fade fadeOut;
+    bool isFadeOut;
+    [SerializeField] float fadeTime;
+
+    string sceneName = "MainScene";
+
+    bool isFadeInEnd = false;
+
+    public bool IsFadeInEnd
+    {
+        get { return isFadeInEnd; }
+    }
+
+    private void Update()
+    {
+        //フェードイン
+        if(isFadeIn)
+        {
+            isFadeIn = false;
+            fadeIn.FadeIn(fadeTime, () => isFadeInEnd = true);
+        }
+
+        //フェードアウト
+        if(isFadeOut)
+        {
+            isFadeOut = false;
+
+            if (sceneName == "GameEnd")
+            {
+                fadeOut.FadeOut(fadeTime, () => Application.Quit()); //ゲーム終了
+            }
+            else fadeOut.FadeOut(fadeTime, () => SceneManager.LoadScene(sceneName)); //シーン遷移
+        }
+    }
+
+    public void FadeIn()
+    {
+        isFadeIn = true;
+    }
+
     /// <summary>
     /// メインゲームへ
     /// </summary>
     public void ToMain()
     {
-        SceneManager.LoadScene("MainScene");
+        isFadeOut = true;
+        sceneName = "MainScene";
     }
 
     /// <summary>
@@ -21,7 +64,17 @@ public class SceneChange : MonoBehaviour
     /// </summary>
     public void ToTitle()
     {
-        SceneManager.LoadScene("TitleScene");
+        isFadeOut = true;
+        sceneName = "TitleScene";
+    }
+
+    /// <summary>
+    /// リザルト画面へ
+    /// </summary>
+    public void ToResult()
+    {
+        isFadeOut = true;
+        sceneName = "ResultScene";
     }
 
     /// <summary>
@@ -29,6 +82,7 @@ public class SceneChange : MonoBehaviour
     /// </summary>
     public void GameEnd()
     {
-        Application.Quit();
+        isFadeOut = true;
+        sceneName = "GameEnd";
     }
 }
