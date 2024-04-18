@@ -8,6 +8,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] MainGameController mainGameController;
+    [SerializeField] FeverController feverController;
 
     [SerializeField] float speed;
 
@@ -74,12 +75,12 @@ public class PlayerController : MonoBehaviour
 
         if ((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) && !isMax)
         {
-            transform.Translate(Vector3.up * speed * Time.deltaTime / mainGameController.Ratio);
+            transform.Translate(Vector3.up * speed * Time.deltaTime);
         }
 
         if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && !isMin)
         {
-            transform.Translate(Vector3.down * speed * Time.deltaTime / mainGameController.Ratio);
+            transform.Translate(Vector3.down * speed * Time.deltaTime);
         }
     }
 
@@ -100,7 +101,7 @@ public class PlayerController : MonoBehaviour
         //フィーバータイム突入アイテム
         if(collision.gameObject.CompareTag("Ball"))
         {
-            mainGameController.Ball++;
+            feverController.Ball++;
             Destroy(collision.gameObject); //アイテムを消す
         }
 
@@ -109,6 +110,7 @@ public class PlayerController : MonoBehaviour
         {
             sr.maskInteraction = SpriteMaskInteraction.VisibleOutsideMask; //マスクする
             col.enabled = false; //当たり判定を消す
+
             mainGameController.Warp();
         }
     }

@@ -5,9 +5,9 @@ using UnityEngine;
 /// <summary>
 /// 障害物の移動・消去
 /// </summary>
-public class ObstacleController : MonoBehaviour
+public class Obstacle : MonoBehaviour
 {
-    MainGameController mainGameController;
+    ObjectController objectController;
 
     [SerializeField, Header("次の障害物生成ライン")] float createPosX;
 
@@ -16,9 +16,9 @@ public class ObstacleController : MonoBehaviour
 
     void Start()
     {
-        if (GameObject.FindObjectOfType<MainGameController>() is MainGameController mg)
+        if (GameObject.FindObjectOfType<ObjectController>() is ObjectController oc)
         {
-            mainGameController = mg;
+            objectController = oc;
         }
     }
 
@@ -33,8 +33,8 @@ public class ObstacleController : MonoBehaviour
         if(createPosX > transform.position.x && canCreate)
         {
             canCreate = false;
-            mainGameController.ObstacleCreate();
-            mainGameController.ItemCreate(); //一緒にアイテムの生成判定
+            objectController.ObstacleCreate();
+            objectController.ItemCreate(); //一緒にアイテムの生成判定
         }
     }
 }
