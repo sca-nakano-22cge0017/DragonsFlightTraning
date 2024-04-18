@@ -14,9 +14,6 @@ public class PlayerController : MonoBehaviour
     //移動できる範囲の上限/下限まで移動しているかどうか
     bool isMax = false, isMin = false;
 
-    //ダメージ、無敵
-    bool isDamage = false, isInvincible = false;
-
     [Header("ゲームオーバー演出")]
     [SerializeField, Header("揺れの速度")] float cycleSpeed = 10;
     [SerializeField, Header("揺れ幅")] float amplitude = 0.001f;
@@ -48,7 +45,6 @@ public class PlayerController : MonoBehaviour
                 if(!mainGameController.IsWarp) //ワープ中は動かせない
                 {
                     Move();
-                    Damage();
                 }
                 break;
 
@@ -76,46 +72,15 @@ public class PlayerController : MonoBehaviour
         if(transform.position.y <= -4) isMin = true;
         else isMin = false;
 
-        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && !isMax)
+        if ((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) && !isMax)
         {
-            transform.Translate(Vector3.up * speed);
+            transform.Translate(Vector3.up * speed * Time.deltaTime / mainGameController.Ratio);
         }
 
-        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isMin)
+        if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && !isMin)
         {
-            transform.Translate(Vector3.down * speed);
+            transform.Translate(Vector3.down * speed * Time.deltaTime / mainGameController.Ratio);
         }
-    }
-
-    //ダメージ処理
-    void Damage()
-    {
-        if(isDamage)
-        {
-            isDamage = false;
-            mainGameController.HP--;
-            StartCoroutine(DamageDirection());
-        }
-    }
-
-    Color nomalColor = new Color(1f, 1f, 1f, 1f);
-    Color damageColor = new Color(1f, 1f, 1f, 0.7f);
-    [SerializeField, Header("被ダメ時の明滅速度")] float damageSpeed;
-
-    //ダメージ演出
-    IEnumerator DamageDirection()
-    {
-        //点滅
-        for (int i = 0; i < 3; i++)
-        {
-            gameObject.GetComponent<SpriteRenderer>().color = damageColor;
-            yield return new WaitForSeconds(damageSpeed);
-            gameObject.GetComponent<SpriteRenderer>().color = nomalColor;
-            yield return new WaitForSeconds(damageSpeed);
-        }
-
-        //無敵終了
-        isInvincible = false;
     }
 
     void Gameover()
@@ -127,21 +92,16 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         //障害物にぶつかったとき　かつ　無敵状態じゃないとき
-        if(collision.gameObject.CompareTag("Obstacle") && !isInvincible && !mainGameController.IsFever)
+        if(collision.gameObject.CompareTag("Obstacle") && !mainGameController.IsFever && mainGameController.state != MainGameController.STATE.GAMEOVER)
         {
-            isDamage = true;
-            isInvincible = true;
+            mainGameController.GameOver();
         }
 
-        //回復アイテムに触れたとき
-        if(collision.gameObject.CompareTag("Heal"))
-        {
-            mainGameController.HP++;
-        }
-
+        //フィーバータイム突入アイテム
         if(collision.gameObject.CompareTag("Ball"))
         {
             mainGameController.Ball++;
+            Destroy(collision.gameObject); //アイテムを消す
         }
 
         //ワープホールに触れたとき
@@ -150,12 +110,6 @@ public class PlayerController : MonoBehaviour
             sr.maskInteraction = SpriteMaskInteraction.VisibleOutsideMask; //マスクする
             col.enabled = false; //当たり判定を消す
             mainGameController.Warp();
-        }
-
-        //アイテムに触れた時、アイテムを消す
-        if (collision.gameObject.CompareTag("Heal") || collision.gameObject.CompareTag("Ball"))
-        {
-            Destroy(collision.gameObject);
         }
     }
 }

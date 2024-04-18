@@ -15,6 +15,10 @@ public class ResultController : MonoBehaviour
 
     bool canMove = false;
 
+    [SerializeField] Text[] rankingScore;
+    float[] scores = new float[4];
+    bool isUpdated = false;
+
     private void Awake()
     {
         dis = PlayerPrefs.GetFloat("Distance", 0);
@@ -23,6 +27,17 @@ public class ResultController : MonoBehaviour
 
         sceneChange.FadeIn();
         StartCoroutine(FadeEndCheck());
+
+        //ランキング取得
+        for(int i = 0; i < rankingScore.Length; i++)
+        {
+            scores[i] = PlayerPrefs.GetFloat(i.ToString(), 0f);
+        }
+
+        for (int i = 0; i < rankingScore.Length; i++)
+        {
+            rankingScore[i].enabled = false;
+        }
     }
 
     /// <summary>
@@ -53,21 +68,42 @@ public class ResultController : MonoBehaviour
             }
             else if (d >= dis)
             {
-                //前回のスコアより高かったら
-                if (lastDis < dis)
+                d = dis;
+
+                //１位スコアより高かったら
+                if (scores[0] < dis)
                 {
                     //新記録の表示
                     newScoreText.enabled = true;
+                }
 
-                    //スコア更新
-                    lastDis = dis;
-                    PlayerPrefs.SetFloat("lastScore", lastDis);
+                if(!isUpdated) //ランキング更新・表示
+                {
+                    isUpdated = true;
+                    scores[scores.Length - 1] = dis;
+
+                    //降順ソート
+                    System.Array.Sort(scores);
+                    System.Array.Reverse(scores);
+
+                    //ランキング保存
+                    for (int i = 0; i < scores.Length; i++)
+                    {
+                        PlayerPrefs.SetFloat(i.ToString(), scores[i]);
+                    }
+
+                    //ランキング表示
+                    for (int i = 0; i < rankingScore.Length; i++)
+                    {
+                        rankingScore[i].enabled = true;
+                        rankingScore[i].text = scores[i].ToString("f0") + "m";
+                    }
                 }
             }
         }
 
         //データ削除コマンド
-        if(Input.GetKey(KeyCode.C))
+        if(Input.GetKeyDown(KeyCode.Delete))
         {
             PlayerPrefs.DeleteAll();
         }
