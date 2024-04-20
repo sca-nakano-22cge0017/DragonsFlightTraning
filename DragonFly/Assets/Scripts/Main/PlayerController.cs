@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// プレイヤー制御
@@ -9,6 +10,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] MainGameController mainGameController;
     [SerializeField] FeverController feverController;
+    PlayerInput playerInput;
 
     [SerializeField] float speed;
 
@@ -21,6 +23,13 @@ public class PlayerController : MonoBehaviour
 
     SpriteRenderer sr;
     Collider2D col;
+
+    // 有効化
+    private void OnEnable()
+    {
+        playerInput = new PlayerInput();
+        playerInput.Enable();
+    }
 
     void Start()
     {
@@ -73,14 +82,20 @@ public class PlayerController : MonoBehaviour
         if(transform.position.y <= -4) isMin = true;
         else isMin = false;
 
-        if ((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) && !isMax)
-        {
-            transform.Translate(Vector3.up * speed * Time.deltaTime);
-        }
+        //if ((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) && !isMax)
+        //{
+        //    transform.Translate(Vector3.up * speed * Time.deltaTime);
+        //}
 
         if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && !isMin)
         {
             transform.Translate(Vector3.down * speed * Time.deltaTime);
+        }
+
+        //! 押しっぱなしの判定がとれていないので修正
+        if(playerInput.Player.Up.triggered && !isMax)
+        {
+            transform.Translate(Vector3.up * speed * Time.deltaTime);
         }
     }
 
@@ -93,7 +108,8 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         //障害物にぶつかったとき　かつ　無敵状態じゃないとき
-        if(collision.gameObject.CompareTag("Obstacle") && !mainGameController.IsFever && mainGameController.state != MainGameController.STATE.GAMEOVER)
+        if(collision.gameObject.CompareTag("Obstacle") && !mainGameController.IsFever && 
+            mainGameController.state != MainGameController.STATE.GAMEOVER)
         {
             mainGameController.GameOver();
         }

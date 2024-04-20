@@ -5,12 +5,12 @@ using UnityEngine.UI;
 
 public class ResultController : MonoBehaviour
 {
+    [SerializeField] DataSaver dataSaver;
     [SerializeField] SceneChange sceneChange;
 
     [SerializeField] Text distance;
     float dis = 0;
     float d = 0;
-    float lastDis = 0;
     [SerializeField] Text newScoreText;
 
     bool canMove = false;
@@ -21,18 +21,16 @@ public class ResultController : MonoBehaviour
 
     private void Awake()
     {
-        dis = PlayerPrefs.GetFloat("Distance", 0);
-        lastDis = PlayerPrefs.GetFloat("LastDistance", 0);
+        // さっきのスコアを取得
+        dis = dataSaver.loadLatestData();
+
         newScoreText.enabled = false;
 
         sceneChange.FadeIn();
         StartCoroutine(FadeEndCheck());
 
-        //ランキング取得
-        for(int i = 0; i < rankingScore.Length; i++)
-        {
-            scores[i] = PlayerPrefs.GetFloat(i.ToString(), 0f);
-        }
+        // ランキング取得
+        scores = dataSaver.loadRankingData(scores.Length);
 
         for (int i = 0; i < rankingScore.Length; i++)
         {
@@ -64,7 +62,7 @@ public class ResultController : MonoBehaviour
                     d = dis;
                 }
 
-                distance.text = d.ToString("f0") + "m";
+                distance.text = Mathf.Floor(d).ToString() + "m";
             }
             else if (d >= dis)
             {
@@ -87,16 +85,13 @@ public class ResultController : MonoBehaviour
                     System.Array.Reverse(scores);
 
                     //ランキング保存
-                    for (int i = 0; i < scores.Length; i++)
-                    {
-                        PlayerPrefs.SetFloat(i.ToString(), scores[i]);
-                    }
+                    dataSaver.saveRankingData(scores);
 
                     //ランキング表示
                     for (int i = 0; i < rankingScore.Length; i++)
                     {
                         rankingScore[i].enabled = true;
-                        rankingScore[i].text = scores[i].ToString("f0") + "m";
+                        rankingScore[i].text = Mathf.Floor(scores[i]).ToString() + "m";
                     }
                 }
             }
@@ -105,7 +100,8 @@ public class ResultController : MonoBehaviour
         //データ削除コマンド
         if(Input.GetKeyDown(KeyCode.Delete))
         {
-            PlayerPrefs.DeleteAll();
+            // データ初期化
+            dataSaver.DataInitialize(scores.Length);
         }
     }
 }

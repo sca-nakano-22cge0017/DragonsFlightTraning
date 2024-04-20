@@ -18,15 +18,6 @@ public class Explain : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        for(int i = 0; i < text.Length; i++)
-        {
-            if(i == page) text[i].enabled = true;
-            else text[i].enabled = false;
-        }
-    }
-
     public void Display()
     {
         window.SetActive(true);
@@ -37,15 +28,37 @@ public class Explain : MonoBehaviour
         window.SetActive(false);
     }
 
+    /// <summary>
+    /// 前のページへ
+    /// </summary>
     public void LastPage()
     {
-        if(page > 0) page--;
-        if(page <= 0) page = text.Length;
+        page--;
+        if(page < 0) page = text.Length - 1;
+
+        TextUpdate();
     }
 
+    /// <summary>
+    /// 次のページへ
+    /// </summary>
     public void NextPage()
     {
-        if(page < text.Length) page++;
-        if(page >= text.Length) page = 0;
+        page++;
+        if(page > text.Length - 1) page = 0;
+
+        TextUpdate();
+    }
+
+    /// <summary>
+    /// 更新
+    /// </summary>
+    void TextUpdate()
+    {
+        for (int i = 0; i < text.Length; i++)
+        {
+            if (i == page) text[i].enabled = true;
+            else text[i].enabled = false;
+        }
     }
 }

@@ -283,7 +283,7 @@ GameObject:
   m_Component:
   - component: {fileID: 165514642}
   m_Layer: 0
-  m_Name: ObjectsCreate
+  m_Name: ObstaclesParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -347,6 +347,7 @@ MonoBehaviour:
   distance: {fileID: 679577019}
   sceneChange: {fileID: 387327123}
   toResultWait: 3
+  dataSaver: {fileID: 592469560}
 --- !u!4 &274242701
 Transform:
   m_ObjectHideFlags: 0
@@ -390,7 +391,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 1933288091}
   mainGameController: {fileID: 274242700}
-  parent: {fileID: 165514641}
   createPos: {x: 10, y: 0, z: 0}
   obstacle:
   - {fileID: 5270074495519111605, guid: 64f378991e0a2924488691fb82544535, type: 3}
@@ -400,16 +400,26 @@ MonoBehaviour:
   - {fileID: 2269994916958114201, guid: 47100c69bfae84d44b3c6b52c415b9d3, type: 3}
   - {fileID: 8644167113737220174, guid: 45eb46878f93a364ea8d15f2673c4677, type: 3}
   - {fileID: 5648181346015194809, guid: 2cdd1b0a51e8e7342bdc0450f59e6c14, type: 3}
-  itemPosX: 15
+  obstacleParent: {fileID: 165514642}
+  itemPosX: 20
   itemPosY: 0200000000000000fefffffffcffffff
   warpHole: {fileID: 5112083318021074812, guid: 4095244e884d6864785f00c803191bd4, type: 3}
   feverItem: {fileID: 8881853927640302546, guid: 81776a8cbe78944408e4677d2e95772a, type: 3}
   warpProb: 10
-  feverProb: 50
+  feverProb: 40
+  warpParent: {fileID: 635103128}
+  feverParent: {fileID: 640891988}
+  warpAjustPos: {x: -9, y: 0, z: 0}
   warpExit: {fileID: 2612670921231018737, guid: 0485ce1622b58f648ac2d579e3a6bf32, type: 3}
-  objSpeed: 15
-  addSpeed: 5
-  maxSpeed: 25
+  warpExitParent: {fileID: 417143088}
+  objSpeed: 10
+  addSpeed: 3
+  maxSpeed: 22
+  parents:
+  - {fileID: 165514642}
+  - {fileID: 635103128}
+  - {fileID: 417143088}
+  - {fileID: 640891988}
 --- !u!114 &274242704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -636,6 +646,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &417143087
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 417143088}
+  m_Layer: 0
+  m_Name: WarpExitParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &417143088
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 417143087}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1080.3649, y: 514.15753, z: 6.252314}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &445816033
 GameObject:
   m_ObjectHideFlags: 0
@@ -796,7 +837,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -877,6 +918,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 557006047}
   m_CullTransparentMesh: 1
+--- !u!1 &592469558
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 592469559}
+  - component: {fileID: 592469560}
+  m_Layer: 0
+  m_Name: DataSaver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &592469559
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592469558}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &592469560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592469558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad73d06462e3fc4684793da57e21675, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &600793623
 GameObject:
   m_ObjectHideFlags: 0
@@ -929,7 +1014,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -1112,6 +1197,68 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &635103127
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 635103128}
+  m_Layer: 0
+  m_Name: WarpItemsParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &635103128
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 635103127}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1080.3649, y: 514.15753, z: 6.252314}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &640891987
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 640891988}
+  m_Layer: 0
+  m_Name: FeverItemsParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &640891988
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 640891987}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1080.3649, y: 514.15753, z: 6.252314}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &679577017
 GameObject:
   m_ObjectHideFlags: 0
@@ -3807,7 +3954,7 @@ Rigidbody2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1933288091}
   m_BodyType: 0
-  m_Simulated: 0
+  m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
@@ -4370,6 +4517,9 @@ SceneRoots:
   - {fileID: 822291807}
   - {fileID: 1955637168}
   - {fileID: 165514642}
+  - {fileID: 635103128}
+  - {fileID: 417143088}
+  - {fileID: 640891988}
   - {fileID: 1933288093}
   - {fileID: 1263707191}
   - {fileID: 331477662}
@@ -4379,3 +4529,4 @@ SceneRoots:
   - {fileID: 860678414}
   - {fileID: 387327124}
   - {fileID: 274242701}
+  - {fileID: 592469559}

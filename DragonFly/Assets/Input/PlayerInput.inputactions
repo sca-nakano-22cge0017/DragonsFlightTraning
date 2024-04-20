@@ -1,0 +1,76 @@
+{
+    "name": "PlayerInput",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "5aa45755-591d-4e4f-abf8-347488047eac",
+            "actions": [
+                {
+                    "name": "Up",
+                    "type": "Button",
+                    "id": "52d1121f-054e-409a-9b00-c573ef0b2b67",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Down",
+                    "type": "Button",
+                    "id": "8d71d569-bbca-4a67-8d2b-95ea4a86d057",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "69fcddf2-8006-4403-81c3-13de28dbb998",
+                    "path": "<Keyboard>/w",
+                    "interactions": "Press(pressPoint=1.401298E-45)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Up",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ca887786-662a-4051-a63c-3fd5bb9e44a4",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "Press(pressPoint=1.401298E-45)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Up",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8f98a1fc-4912-48e9-b236-5b79783f042e",
+                    "path": "<Keyboard>/s",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Down",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "79e082d8-10a1-4e7c-8110-b260544da790",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Down",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

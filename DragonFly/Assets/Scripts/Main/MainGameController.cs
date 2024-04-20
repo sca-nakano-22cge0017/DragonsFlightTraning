@@ -31,6 +31,8 @@ public class MainGameController : MonoBehaviour
     [SerializeField] SceneChange sceneChange;
     [SerializeField, Header("リザルトへ遷移するまでの時間")] float toResultWait;
 
+    [SerializeField] DataSaver dataSaver;
+
     private void Start()
     {
         ScriptsSet();
@@ -80,7 +82,7 @@ public class MainGameController : MonoBehaviour
         dis += Time.deltaTime * 10; //!　オブジェクト移動速度に応じて数値を足す
         
         //UIの表示・非表示は一つにまとめる
-        uiDisp.TextPutIn(distance, dis.ToString("f0") + "m");
+        uiDisp.TextPutIn(distance, Mathf.Floor(dis).ToString() + "m");
     }
 
     /// <summary>
@@ -94,18 +96,25 @@ public class MainGameController : MonoBehaviour
         StartCoroutine(WarpEnd());
     }
 
+    const float spriteFalseTime = 0.5f;
+    const float warpEndTime = 0.5f;
+
     /// <summary>
     /// ワープ演出
     /// </summary>
     /// <returns></returns>
     IEnumerator WarpEnd()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(spriteFalseTime);
 
         SpriteRenderer pSR = player.GetComponent<SpriteRenderer>();
         pSR.enabled = false; //プレイヤー非表示
 
+        objectController.AllRelease(); // オブジェクト全返却
+
         yield return new WaitUntil(() => !warpFade.IsWarpFade); //演出が終わったら
+
+        objectController.ObstacleCreate(); // 再生成
 
         pSR.enabled = true; //プレイヤー表示
 
@@ -115,7 +124,7 @@ public class MainGameController : MonoBehaviour
         //距離を足す
         dis += warpDis;
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(warpEndTime);
 
         isWarp = false; //ワープ終了
     }
@@ -131,7 +140,8 @@ public class MainGameController : MonoBehaviour
         yield return new WaitForSeconds(toResultWait);
 
         //飛行距離保存
-        PlayerPrefs.SetFloat("Distance", dis);
+        //PlayerPrefs.SetFloat("Distance", dis);
+        dataSaver.saveLatestData(dis);
 
         //シーン遷移
         sceneChange.ToResult();

@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-//! ToDo オブジェクトプールの実装
+using UnityEngine.Pool;
 
 /// <summary>
 /// オブジェクトの生成・速度変更
@@ -12,30 +11,38 @@ public class ObjectController : MonoBehaviour
     [SerializeField] GameObject player;
     [SerializeField] MainGameController mainGameController;
 
-    [SerializeField, Header("生成場所")] GameObject parent;
-
     [Header("障害物生成")]
     [SerializeField, Header("生成位置")] Vector3 createPos = new Vector3(10, 0, 0);
     [SerializeField, Header("障害物")] GameObject[] obstacle;
-    int lastObj = 3; //直近に生成した障害物
+    int lastObj = 3; // 直近に生成した障害物
+    [SerializeField, Header("障害物生成場所")] Transform obstacleParent;
 
     [Header("アイテム生成")]
     [SerializeField, Header("アイテム生成位置　X")] int itemPosX;
     [SerializeField, Header("アイテム生成位置　Y")] int[] itemPosY;
+
     [SerializeField, Header("ワープホールのPrefab")] GameObject warpHole;
     [SerializeField, Header("フィーバーアイテムのPrefab")] GameObject feverItem;
+
     [SerializeField, Header("ワープホール　生成確率")] float warpProb;
-    float _warpProb = 0; //計算用
+    float _warpProb = 0; // 計算用
     [SerializeField, Header("フィーバーアイテム　生成確率")] float feverProb;
-    float _feverProb = 0; //計算用
+    float _feverProb = 0; // 計算用
+
+    [SerializeField, Header("ワープホール生成場所")] Transform warpParent;
+    [SerializeField, Header("フィーバーアイテム生成場所")] Transform feverParent;
 
     [Header("ワープ")]
+    [SerializeField, Header("ワープ後の位置")] Vector3 warpAjustPos;
     [SerializeField, Header("ワープ出口")] GameObject warpExit;
+    [SerializeField, Header("ワープホール出口生成場所")] Transform warpExitParent;
 
     [SerializeField, Header("初期速度")] float objSpeed;
     [SerializeField, Header("移動速度　上昇量")] float addSpeed;
     [SerializeField, Header("移動速度　最大値")] float maxSpeed;
-    float _addSpeed; //実際に計算に使う値
+    float _addSpeed; // 実際に計算に使う値
+
+    [SerializeField, Header("各オブジェクトの生成場所")] Transform[] parents; // 全ての親オブジェクト
 
     void Awake()
     {
@@ -51,6 +58,7 @@ public class ObjectController : MonoBehaviour
     {
         if (mainGameController.state == MainGameController.STATE.PLAY)
         {
+            //生成確率調整
             CreateProbability();
         }
     }
@@ -111,13 +119,8 @@ public class ObjectController : MonoBehaviour
                 break;
         }
 
-        var obj = Instantiate(obstacle[num], createPos, Quaternion.identity, parent.transform);
-
-        if (obj)
-        {
-            ObjSpeedChange(obj, objSpeed, false);
-            ObjSpeedChange(obj, _addSpeed, true);
-        }
+        //生成
+        InstObstacle(obstacle[num], obstacleParent, num);
     }
 
     /// <summary>
@@ -141,23 +144,16 @@ public class ObjectController : MonoBehaviour
         //生成位置をランダムに算出
         int n = Random.Range(0, itemPosY.Length);
         Vector3 pos = new Vector3(itemPosX, itemPosY[n], 0);
-        GameObject obj = null;
 
         //ワープホール生成
         if (num <= _warpProb)
         {
-            obj = Instantiate(warpHole, pos, Quaternion.identity);
+            InstItem(warpHole, pos, warpParent);
         }
         //フィーバーアイテム生成
         else if (num <= _warpProb + _feverProb)
         {
-            obj = Instantiate(feverItem, pos, Quaternion.identity);
-        }
-
-        if (obj)
-        {
-            ObjSpeedChange(obj, objSpeed, false);
-            ObjSpeedChange(obj, _addSpeed, true);
+            InstItem(feverItem, pos, feverParent);
         }
     }
 
@@ -167,31 +163,62 @@ public class ObjectController : MonoBehaviour
     public void WarpExitCreate()
     {
         Vector3 pPos = player.GetComponent<Transform>().transform.position;
-        Vector3 bPos = new Vector3(2, 0, 0); //ボール生成位置
-        var obj = Instantiate(warpExit, pPos + bPos, Quaternion.identity, parent.transform);
-        if (obj)
-        {
-            ObjSpeedChange(obj, objSpeed, false);
-            ObjSpeedChange(obj, _addSpeed, true);
-        }
+        Vector3 ePos = new Vector3(2, 0, 0); //ホール生成位置
+
+        InstItem(warpExit, pPos + ePos, warpExitParent);
     }
 
     /// <summary>
-    /// 障害物/アイテムの速度変更
+    /// アイテム生成・プールから取り出し
     /// </summary>
-    /// <param name="obj">速度を変えるオブジェクト</param>
-    /// <param name="speed">加算/代入速度</param>
-    /// <param name="isAdd">加算かどうか trueで加算 falseで代入</param>
-    void ObjSpeedChange(GameObject obj, float speed, bool isAdd)
+    /// <param name="target">生成オブジェクト</param>
+    /// <param name="pos">生成位置</param>
+    /// <param name="parent">親オブジェクト</param>
+    void InstItem(GameObject target, Vector3 pos, Transform parent)
     {
-        if (obj.GetComponent<ObjectsMove>() is ObjectsMove om)
+        foreach(Transform t in parent)
         {
-            if (isAdd)
+            if(!t.gameObject.activeSelf)
             {
-                om.Speed += speed; //加算
+                t.gameObject.SetActive(true); // 表示
+                t.gameObject.transform.position = pos; // 位置変更
+
+                t.GetComponent<ObjectsMove>().Speed = objSpeed + _addSpeed; // 移動速度変更
+
+                return;
             }
-            else om.Speed = speed; //代入
         }
+
+        var obj = Instantiate(target, pos, Quaternion.identity, parent);
+        obj.GetComponent<ObjectsMove>().Speed = objSpeed + _addSpeed; // 移動速度変更
+        return;
+    }
+
+    void InstObstacle(GameObject target, Transform parent, int num)
+    {
+        foreach (Transform t in parent)
+        {
+            var om = t.GetComponent<ObjectsMove>();
+
+            if(num != om.Num) // 対象のオブジェクトじゃなければ次のオブジェクトに行く
+            {
+                continue;
+            }
+
+            if (!t.gameObject.activeSelf)
+            {
+                t.gameObject.SetActive(true); // 表示
+                t.gameObject.transform.position = createPos; // 位置変更
+
+                om.Speed = objSpeed + _addSpeed; // 移動速度変更
+
+                return;
+            }
+        }
+
+        var obj = Instantiate(target, createPos, Quaternion.identity, parent);
+        obj.GetComponent<ObjectsMove>().Speed = objSpeed + _addSpeed;
+        return;
     }
 
     /// <summary>
@@ -201,5 +228,24 @@ public class ObjectController : MonoBehaviour
     {
         //障害物の移動速度を上げる
         if (maxSpeed > _addSpeed + objSpeed) _addSpeed += addSpeed;
+    }
+
+    /// <summary>
+    /// オブジェクトを全てプールに返却
+    /// </summary>
+    public void AllRelease()
+    {
+        foreach(var parent in parents)
+        {
+            foreach(Transform p in parent)
+            {
+                if(!p.gameObject.activeSelf)
+                {
+                    continue;
+                }
+
+                p.gameObject.SetActive(false); // 初期化
+            }
+        }
     }
 }
