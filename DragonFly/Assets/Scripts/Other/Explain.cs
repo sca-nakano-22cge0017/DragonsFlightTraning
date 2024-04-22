@@ -7,11 +7,18 @@ public class Explain : MonoBehaviour
 {
     [SerializeField] GameObject window;
     [SerializeField] Text[] text;
+    [SerializeField] Text forAndroidText;
     int page = 0;
 
     private void Start()
     {
-        for(int i = 0; i < text.Length; i++)
+        // アンドロイドの場合は表示テキストを変える
+#if UNITY_ANDROID
+        text[0].enabled = false;
+        text[0] = forAndroidText;
+#endif
+
+        for (int i = 0; i < text.Length; i++)
         {
             if (i == page) text[i].enabled = true;
             else text[i].enabled = false;

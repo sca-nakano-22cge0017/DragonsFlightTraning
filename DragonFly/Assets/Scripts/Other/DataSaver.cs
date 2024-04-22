@@ -3,33 +3,56 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-//! ディレクトリ・ファイルの存在確認をまとめる
-
 public class DataSaver : MonoBehaviour
 {
     string rankingDataPath = "/Data/RankingData.csv";
     string latestDataPath = "/Data/LatestData.csv";
 
     /// <summary>
-    /// 最新スコア　セーブ
+    /// ファイル・ディレクトリの存在確認
     /// </summary>
-    public void saveLatestData(float score)
+    /// <param name="fileName">ファイル名</param>
+    /// <param name="length">ランキングデータの配列数</param>
+    void FileCheck(string fileName, int length)
     {
         string directoryName = Application.persistentDataPath + "/Data";
-        string fileName = Application.persistentDataPath + latestDataPath;
-
-        StreamWriter writer;
+        string latestFile = Application.persistentDataPath + latestDataPath;
+        string rankingFile = Application.persistentDataPath + rankingDataPath;
 
         while (!Directory.Exists(directoryName)) //ディレクトリがなかったら
         {
             Directory.CreateDirectory(directoryName); //ディレクトリを作成
         }
-        
+
         while (!File.Exists(fileName)) // ファイルがなかったら
         {
             FileStream fs = File.Create(fileName); // ファイルを作成
             fs.Close(); // ファイルを閉じる
+
+            if(fileName == latestFile)
+            {
+                // 仮データ保存
+                saveLatestData(0);
+            }
+
+            if(fileName == rankingFile)
+            {
+                // 仮データ保存
+                DataInitialize(length);
+            }
         }
+    }
+
+    /// <summary>
+    /// 最新スコア　セーブ
+    /// </summary>
+    public void saveLatestData(float score)
+    {
+        string fileName = Application.persistentDataPath + latestDataPath;
+
+        StreamWriter writer;
+
+        FileCheck(fileName, 0);
 
         string s = Mathf.Floor(score).ToString();
 
@@ -45,25 +68,11 @@ public class DataSaver : MonoBehaviour
     /// <returns></returns>
     public float loadLatestData()
     {
-        string directoryName = Application.persistentDataPath + "/Data";
         string fileName = Application.persistentDataPath + latestDataPath;
         string dataStr = "";
         float score = 0;
 
-        while (!Directory.Exists(directoryName)) //ディレクトリがなかったら
-        {
-            Directory.CreateDirectory(directoryName); //ディレクトリを作成
-        }
-
-        // ファイルがなかったら
-        while (!File.Exists(fileName))
-        {
-            FileStream fs = File.Create(fileName); // ファイルを作成
-            fs.Close(); // ファイルを閉じる
-
-            // 仮データ保存
-            saveLatestData(0);
-        }
+        FileCheck(fileName, 0);
 
         StreamReader reader = new StreamReader(fileName);
         dataStr = reader.ReadToEnd(); // 読み込み
@@ -85,22 +94,11 @@ public class DataSaver : MonoBehaviour
     public void saveRankingData(float[] score)
     {
         StreamWriter writer;
-        string directoryName = Application.persistentDataPath + "/Data";
         string fileName = Application.persistentDataPath + rankingDataPath;
 
         string[] s = new string[score.Length];
 
-        while (!Directory.Exists(directoryName)) //ディレクトリがなかったら
-        {
-            Directory.CreateDirectory(directoryName); //ディレクトリを作成
-        }
-
-        // ファイルがなかったら
-        while (!File.Exists(fileName))
-        {
-            FileStream fs = File.Create(fileName); // ファイルを作成
-            fs.Close(); // ファイルを閉じる
-        }
+        FileCheck(fileName, 0);
 
         //スコア挿入
         for (int i = 0; i < score.Length; i++)
@@ -130,20 +128,7 @@ public class DataSaver : MonoBehaviour
         
         float[] score = new float[length];
 
-        while (!Directory.Exists(directoryName)) //ディレクトリがなかったら
-        {
-            Directory.CreateDirectory(directoryName); //ディレクトリを作成
-        }
-
-        //ファイルがなかったら
-        while (!File.Exists(fileName))
-        {
-            FileStream fs = File.Create(fileName); // ファイルを作成
-            fs.Close(); // ファイルを閉じる
-
-            // 仮データ保存
-            DataInitialize(length);
-        }
+        FileCheck(fileName, length);
 
         StreamReader reader = new StreamReader(fileName);
         dataStr = reader.ReadToEnd(); // 読み込み

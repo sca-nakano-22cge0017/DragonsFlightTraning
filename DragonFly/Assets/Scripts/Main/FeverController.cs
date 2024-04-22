@@ -24,6 +24,8 @@ public class FeverController : MonoBehaviour
     [SerializeField, Header("継続時間")] float feverTime;
     float nowTimeFever = 0f; // 経過時間
 
+    [SerializeField, Header("フィーバー後の無敵時間")] float invincibleTime = 0.5f;
+
     [SerializeField, Header("フィーバー時の速度上昇倍率")] float feverRatio;
     float _ratio = 1;
     [SerializeField, Header("風エフェクト")] ParticleSystem windEffect;
@@ -75,6 +77,7 @@ public class FeverController : MonoBehaviour
         {
             ball = 0; //初期化
             mainGameController.IsFever = true;
+            mainGameController.IsInvincible = true;
             StartCoroutine(FeverTimeCheck());
         }
 
@@ -123,6 +126,9 @@ public class FeverController : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(feverTime);
         mainGameController.IsFever = false; //フィーバー終了
+
+        yield return new WaitForSecondsRealtime(invincibleTime);
+        mainGameController.IsInvincible = false;
     }
 
     void SpeedChange(float speed)

@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] FeverController feverController;
     PlayerInput playerInput;
 
+
     [SerializeField] float speed;
 
     //移動できる範囲の上限/下限まで移動しているかどうか
@@ -82,20 +83,15 @@ public class PlayerController : MonoBehaviour
         if(transform.position.y <= -4) isMin = true;
         else isMin = false;
 
-        //if ((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) && !isMax)
-        //{
-        //    transform.Translate(Vector3.up * speed * Time.deltaTime);
-        //}
-
-        if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && !isMin)
-        {
-            transform.Translate(Vector3.down * speed * Time.deltaTime);
-        }
-
-        //! 押しっぱなしの判定がとれていないので修正
-        if(playerInput.Player.Up.triggered && !isMax)
+        // 指定キーが押されている間　かつ　移動上限じゃなかったら
+        if (playerInput.Player.Up.IsPressed() && !isMax)
         {
             transform.Translate(Vector3.up * speed * Time.deltaTime);
+        }
+
+        if (playerInput.Player.Down.IsPressed() && !isMin)
+        {
+            transform.Translate(Vector3.down * speed * Time.deltaTime);
         }
     }
 
@@ -108,7 +104,7 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         //障害物にぶつかったとき　かつ　無敵状態じゃないとき
-        if(collision.gameObject.CompareTag("Obstacle") && !mainGameController.IsFever && 
+        if(collision.gameObject.CompareTag("Obstacle") && !mainGameController.IsInvincible && 
             mainGameController.state != MainGameController.STATE.GAMEOVER)
         {
             mainGameController.GameOver();

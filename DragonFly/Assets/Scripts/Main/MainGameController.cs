@@ -23,6 +23,9 @@ public class MainGameController : MonoBehaviour
     bool isFever = false;
     public bool IsFever { get { return isFever; } set { isFever = value; } }
 
+    bool isInvincible = false;
+    public bool IsInvincible { get { return isInvincible; } set { isInvincible = value; } }
+
     //飛行距離
     [SerializeField] Text distance;
     float dis;
@@ -140,7 +143,6 @@ public class MainGameController : MonoBehaviour
         yield return new WaitForSeconds(toResultWait);
 
         //飛行距離保存
-        //PlayerPrefs.SetFloat("Distance", dis);
         dataSaver.saveLatestData(dis);
 
         //シーン遷移
