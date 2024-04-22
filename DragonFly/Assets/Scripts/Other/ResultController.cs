@@ -19,8 +19,20 @@ public class ResultController : MonoBehaviour
     float[] scores = new float[4];
     bool isUpdated = false;
 
+    [SerializeField] Text skipExplainForPC;
+    [SerializeField] Text skipExplainForAndroid;
+
     private void Awake()
     {
+#if UNITY_EDITOR
+        skipExplainForPC.enabled = true;
+        skipExplainForAndroid.enabled = false;
+#endif
+#if UNITY_ANDROID
+        skipExplainForPC.enabled = false;
+        skipExplainForAndroid.enabled = true;
+#endif
+
         // さっきのスコアを取得
         dis = dataSaver.loadLatestData();
 
@@ -35,6 +47,11 @@ public class ResultController : MonoBehaviour
         for (int i = 0; i < rankingScore.Length; i++)
         {
             rankingScore[i].enabled = false;
+        }
+
+        if (GameObject.FindObjectOfType<BGM>().GetComponent<BGM>() is var bgm)
+        {
+            bgm.BGMStart(); // BGM再生
         }
     }
 
@@ -56,8 +73,8 @@ public class ResultController : MonoBehaviour
             {
                 d++;
 
-                //スペース/エンターを押したらスコアのカウントアップをスキップする
-                if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
+                //スペース/エンターを押したら/画面をタップしたらスコアのカウントアップをスキップする
+                if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetMouseButtonDown(0))
                 {
                     d = dis;
                 }

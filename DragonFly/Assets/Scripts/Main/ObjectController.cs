@@ -42,6 +42,8 @@ public class ObjectController : MonoBehaviour
     [SerializeField, Header("移動速度　最大値")] float maxSpeed;
     float _addSpeed; // 実際に計算に使う値
 
+    public float Speed { get { return objSpeed; } }
+
     [SerializeField, Header("各オブジェクトの生成場所")] Transform[] parents; // 全ての親オブジェクト
 
     void Awake()
@@ -240,6 +242,27 @@ public class ObjectController : MonoBehaviour
             foreach(Transform p in parent)
             {
                 if(!p.gameObject.activeSelf)
+                {
+                    continue;
+                }
+
+                p.gameObject.SetActive(false); // 初期化
+            }
+        }
+    }
+
+    /// <summary>
+    /// アイテムのみ全てプールに返却
+    /// </summary>
+    public void AllItemRelease()
+    {
+        Transform[] parents = { warpParent, feverParent };
+
+        foreach (var parent in parents)
+        {
+            foreach (Transform p in parent)
+            {
+                if (!p.gameObject.activeSelf)
                 {
                     continue;
                 }

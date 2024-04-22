@@ -6,22 +6,22 @@ using UnityEngine.UI;
 public class Explain : MonoBehaviour
 {
     [SerializeField] GameObject window;
-    [SerializeField] Text[] text;
-    [SerializeField] Text forAndroidText;
+    [SerializeField] GameObject[] text;
+    [SerializeField] GameObject forAndroidText;
     int page = 0;
 
     private void Start()
     {
         // アンドロイドの場合は表示テキストを変える
 #if UNITY_ANDROID
-        text[0].enabled = false;
+        text[0].SetActive(false);
         text[0] = forAndroidText;
 #endif
 
         for (int i = 0; i < text.Length; i++)
         {
-            if (i == page) text[i].enabled = true;
-            else text[i].enabled = false;
+            if (i == page) text[i].SetActive(true);
+            else text[i].SetActive(false);
         }
     }
 
@@ -64,8 +64,8 @@ public class Explain : MonoBehaviour
     {
         for (int i = 0; i < text.Length; i++)
         {
-            if (i == page) text[i].enabled = true;
-            else text[i].enabled = false;
+            if (i == page) text[i].SetActive(true);
+            else text[i].SetActive(false);
         }
     }
 }

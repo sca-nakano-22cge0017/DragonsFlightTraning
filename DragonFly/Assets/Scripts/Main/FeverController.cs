@@ -5,9 +5,10 @@ using UnityEngine.UI;
 
 public class FeverController : MonoBehaviour
 {
+    [SerializeField] SoundController sound;
     MainGameController mainGameController;
+    ObjectController objectController;
     UIDisp uiDisp;
-    Object _object;
     [SerializeField, Header("生成場所")] Transform objectsParent;
 
     [Header("フィーバー")]
@@ -28,13 +29,18 @@ public class FeverController : MonoBehaviour
 
     [SerializeField, Header("フィーバー時の速度上昇倍率")] float feverRatio;
     float _ratio = 1;
+
+    [SerializeField, Header("フィーバー時の距離上昇倍率")] float fever;
+    float _fever = 1;
+    public float Fever { get { return _fever; } }
+
     [SerializeField, Header("風エフェクト")] ParticleSystem windEffect;
     
     void Start()
     {
         if (GetComponent<MainGameController>() is var mgc) mainGameController = mgc;
         if (GetComponent<UIDisp>() is var ud) uiDisp = ud;
-        if (GetComponent<Object>() is var obj) _object = obj;
+        if (GetComponent<ObjectController>() is var oc) objectController = oc;
 
         //フィーバーアイテム個数初期化
         ball = 0;
@@ -78,6 +84,12 @@ public class FeverController : MonoBehaviour
             ball = 0; //初期化
             mainGameController.IsFever = true;
             mainGameController.IsInvincible = true;
+            _fever = fever;
+
+            sound.WindStart(); // SE再生
+
+            objectController.AllItemRelease(); //アイテム消去
+
             StartCoroutine(FeverTimeCheck());
         }
 
@@ -110,6 +122,8 @@ public class FeverController : MonoBehaviour
 
             windEffect.Stop(); // エフェクト停止
 
+            sound.WindStop(); // SE停止
+
             //ゲージから表示を戻す
             for (int i = 0; i < ballsImage.Length; i++)
             {
@@ -117,6 +131,8 @@ public class FeverController : MonoBehaviour
             }
             guages.SetActive(false);
             guageInside.fillAmount = 1;
+
+            _fever = 1;
         }
 
         SpeedChange(_ratio); //速度変更

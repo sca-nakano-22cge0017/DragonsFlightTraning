@@ -10,8 +10,8 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] MainGameController mainGameController;
     [SerializeField] FeverController feverController;
+    [SerializeField] SoundController sound;
     PlayerInput playerInput;
-
 
     [SerializeField] float speed;
 
@@ -114,6 +114,7 @@ public class PlayerController : MonoBehaviour
         if(collision.gameObject.CompareTag("Ball"))
         {
             feverController.Ball++;
+            sound.ItemCatch(); // SE
             Destroy(collision.gameObject); //ÉAÉCÉeÉÄÇè¡Ç∑
         }
 
@@ -124,6 +125,7 @@ public class PlayerController : MonoBehaviour
             col.enabled = false; //ìñÇΩÇËîªíËÇè¡Ç∑
 
             mainGameController.Warp();
+            sound.Warp(); // SE
         }
     }
 }

@@ -5,7 +5,9 @@ using UnityEngine.UI;
 public class MainGameController : MonoBehaviour
 {
     [SerializeField] GameObject player;
+    [SerializeField] SoundController sound;
     ObjectController objectController;
+    FeverController feverController;
     UIDisp uiDisp;
 
     public enum STATE { WAIT = 0, PLAY, GAMEOVER, }
@@ -59,6 +61,11 @@ public class MainGameController : MonoBehaviour
         {
             uiDisp = ud;
         }
+
+        if (GetComponent<FeverController>() is var fc)
+        {
+            feverController = fc;
+        }
     }
 
     void Update()
@@ -82,7 +89,7 @@ public class MainGameController : MonoBehaviour
     /// </summary>
     void FlyDis()
     {
-        dis += Time.deltaTime * 10; //!　オブジェクト移動速度に応じて数値を足す
+        dis += Time.deltaTime * feverController.Fever * objectController.Speed * 2;
         
         //UIの表示・非表示は一つにまとめる
         uiDisp.TextPutIn(distance, Mathf.Floor(dis).ToString() + "m");
@@ -99,7 +106,7 @@ public class MainGameController : MonoBehaviour
         StartCoroutine(WarpEnd());
     }
 
-    const float spriteFalseTime = 0.5f;
+    const float spriteFalseTime = 0.3f;
     const float warpEndTime = 0.5f;
 
     /// <summary>
@@ -117,17 +124,17 @@ public class MainGameController : MonoBehaviour
 
         yield return new WaitUntil(() => !warpFade.IsWarpFade); //演出が終わったら
 
-        objectController.ObstacleCreate(); // 再生成
-
         pSR.enabled = true; //プレイヤー表示
-
-        //ワープホールの出口を生成
-        objectController.WarpExitCreate();
 
         //距離を足す
         dis += warpDis;
 
+        //ワープホールの出口を生成
+        objectController.WarpExitCreate();
+
         yield return new WaitForSeconds(warpEndTime);
+
+        objectController.ObstacleCreate(); // 再生成
 
         isWarp = false; //ワープ終了
     }
@@ -135,6 +142,14 @@ public class MainGameController : MonoBehaviour
     public void GameOver()
     {
         state = STATE.GAMEOVER;
+        
+        if(GameObject.FindObjectOfType<BGM>().GetComponent<BGM>() is var bgm)
+        {
+            bgm.BGMStop(); // BGM停止
+        }
+
+        sound.GameOver(); // SE
+
         StartCoroutine(GameEnd());
     }
 

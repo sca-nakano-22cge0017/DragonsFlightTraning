@@ -1,11 +1,25 @@
 ○オブジェクトプール
 ○データ保存
-・スマホでも操作できるようにする
+○スマホでも操作できるようにする
 ○フィーバー後0.5秒くらい無敵状態
 ・UI変更　ディティールアップ
 ○操作説明バグ修正
-・操作説明　画像追加
+○操作説明　画像追加
 ・BGM/SE追加
 ・音量設定
-・データ初期化ボタン追加
 ・ウィンドウ表示　下からスライドインするように
+
+FB
+・ワープ後避けるのが難しい
+・ワープ入るの難しい
+○右側上昇　左側下降
+・難易度高め
+
+BGM
+https://dova-s.jp/bgm/play9008.html
+
+SE
+風：https://dova-s.jp/se/download477.html
+アイテム獲得：https://dova-s.jp/se/download538.html
+ワープ：https://dova-s.jp/se/play498.html
+ゲームオーバー：https://dova-s.jp/se/play1234.html
