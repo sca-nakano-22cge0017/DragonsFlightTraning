@@ -1,0 +1,8 @@
+BGM
+https://dova-s.jp/bgm/play9008.html
+
+SE
+風：https://dova-s.jp/se/download477.html
+アイテム獲得：https://dova-s.jp/se/download538.html
+ワープ：https://dova-s.jp/se/play498.html
+ゲームオーバー：https://dova-s.jp/se/play1234.html
